@@ -1,4 +1,4 @@
-# Reporting
+# Practice management and Reporting
 ## Team
 * Product Manager: Alekandr Morozov
 * Data Architect: Dhananjay Jagdish Dubey
