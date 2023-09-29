@@ -1,6 +1,6 @@
 # Reporting
 ## Team
-* Product Manager: Alekandr Morozov
+* Product Manager: Aleksandr Morozov
 * Data Architect: Dhananjay Jagdish Dubey
 * UI/UX Developer: Ankush Ranapure
 * Microservices Developer: Mugunthan Krishnan
