@@ -2,7 +2,7 @@ FROM python:3.10-slim
 
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
-EXPOSE 8080
+ENV PORT 8080
 
 # Copy local code to the container image.
 COPY . /src
@@ -15,4 +15,4 @@ RUN pip install -r requirements.txt
 # webserver, with one worker process and 8 threads.
 # For environments with multiple CPU cores, increase the number of workers
 # to be equal to the cores available.
-CMD exec gunicorn --bind 8080 --workers 1 --threads 8 --timeout 0 books:app
+CMD exec gunicorn books:app --bind :$PORT --workers 4 --threads 8 --timeout 0 --worker-class uvicorn.workers.UvicornWorker 
