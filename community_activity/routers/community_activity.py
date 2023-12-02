@@ -15,4 +15,5 @@ async def get_community_activity():
         success='Connected Successfully'
     except oracledb.Error as e:
         success = e
-    return success
+    communityActivityJson.update({'message':success})
+    return communityActivityJson
