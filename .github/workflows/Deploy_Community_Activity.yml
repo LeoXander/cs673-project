@@ -6,7 +6,7 @@ name: Deploy to heroku.
 on:
   push:
     branches:
-      - prod
+      - dev
 
 # Your workflows jobs.
 jobs:
@@ -49,7 +49,7 @@ jobs:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           
           # Name of the heroku application to which the build is to be sent.
-          heroku_app_name: ${{ secrets.HEROKU_REPORT_APP_NAME }}
+          heroku_app_name: ${{ secrets.HEROKU_COMMUNITY_ACTIVITY_APP_NAME }}
 
           # (Optional, default: "./")
           # Dockerfile directory.
