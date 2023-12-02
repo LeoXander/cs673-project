@@ -7,7 +7,7 @@ ENV PORT 8080
 # Copy local code to the container image.
 COPY . /src
 WORKDIR /src
-
+RUN chmod +x startup.sh
 # Install Python Requirements
 RUN pip install -r requirements.txt
 
@@ -15,4 +15,4 @@ RUN pip install -r requirements.txt
 # webserver, with one worker process and 8 threads.
 # For environments with multiple CPU cores, increase the number of workers
 # to be equal to the cores available.
-CMD exec gunicorn main:app --bind :$PORT --workers 4 --threads 8 --timeout 0 --worker-class uvicorn.workers.UvicornWorker 
+CMD ["/bin/bash", "-c", "./startup.sh"]
