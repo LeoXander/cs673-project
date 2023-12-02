@@ -9,4 +9,10 @@ async def get_community_activity():
     communityActivityJson = {}
     connection = connectToDB()
 
-    return communityActivityJson
+    success=''
+    try:
+        connection.ping()
+        success='Connected Successfully'
+    except oracledb.Error as e:
+        success = e
+    return success
