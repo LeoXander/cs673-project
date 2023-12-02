@@ -4,3 +4,5 @@ env
 .idea
 .vscode
 .DS_Store
+tnsnames.ora
+ewallet.pem
