@@ -6,3 +6,4 @@ env
 .DS_Store
 tnsnames.ora
 ewallet.pem
+.pytest_cache
