@@ -1,5 +1,15 @@
 from fastapi import FastAPI
-from report_api.routers import demographic_chart
+import os
+import sys
+CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+print(CURR_DIR)
+sys.path.append(CURR_DIR)
 
-app = FastAPI()
-app.include_router(demographic_chart.router)
+def create_app():
+    app = FastAPI()
+    from routers import demographic_chart
+    app.include_router(demographic_chart.router)
+    return app
+
+app = create_app()
+

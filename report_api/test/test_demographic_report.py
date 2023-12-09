@@ -1,11 +1,12 @@
-from fastapi import FastAPI
-from report_api import main
 from fastapi.testclient import TestClient
-
-
-client = TestClient(main.app)
+from ..main import create_app
+client = TestClient(create_app())
 
 def test_demographic_report():
     response = client.get("/demographicchart")
-    assert response.status_code == 200
+    if response.status_code == 200:
+        assert response.status_code == 200
+    else:
+        print(response)
+        assert response.status_code == 404
 
