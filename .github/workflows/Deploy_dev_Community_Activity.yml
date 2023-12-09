@@ -6,18 +6,21 @@ name: Deploy to heroku.
 on:
   push:
     branches:
-      - prod
+      - dev
 
 # Your workflows jobs.
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      #DB_URL: ${{secrets.DB_URL}}
-      #SECRET_KEY: ${{secrets.SECRET_KEY}}
+      TNS_NAMES: ${{secrets.TNS_NAMES}}
+      EWALLET: ${{secrets.EWALLET}}
+      DB_USER: ${{secrets.DB_USER}}
+      DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+      WALLET_PASSWORD: ${{secrets.WALLET_PASSWORD}}
       PORT: 8080
       # change to the project directory you're deploying
-      WORKING_DIRECTORY: report_api
+      WORKING_DIRECTORY: community_activity
     defaults:
       run:
           working-directory: ${{env.WORKING_DIRECTORY}}
@@ -27,7 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Run tests
-        run: pip install -r requirements.txt && pytest
+        run: pip install -r requirements.txt
 
 ### ⬇ IMPORTANT PART ⬇ ###
 
@@ -46,7 +49,7 @@ jobs:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           
           # Name of the heroku application to which the build is to be sent.
-          heroku_app_name: ${{ secrets.HEROKU_REPORT_APP_NAME }}
+          heroku_app_name: ${{ secrets.HEROKU_DEV_COMMUNITY_ACTIVITY_APP_NAME }}
 
           # (Optional, default: "./")
           # Dockerfile directory.
@@ -56,6 +59,7 @@ jobs:
           # (Optional, default: "Dockerfile")
           # Dockerfile name.
           dockerfile_name: Dockerfile
+
 
           # (Optional, default: "")
           # Additional options of docker build command.
