@@ -24,9 +24,17 @@ async def get_service_rpt(serviceName:str|None=None):
     for service in servicesOfferedJson:
         services={}
         for key,value in service.items():
-            if allRecordsFlag == True or service['serviceName']==serviceName:
+            if allRecordsFlag == True or service['serviceName'].lower()==serviceName.lower():
                 if key not in ['id','skillId','vendorId']:
                     services[key] = value
+                elif key == 'vendorId':
+                    vendorId=str(value)
+                    vendorApi = 'https://team3-598fa58116f6.herokuapp.com/api/vendors/'+vendorId
+                    vendorresponse = requests.get(vendorApi)
+                    if vendorresponse.status_code != 200:
+                        raise HTTPException(status_code=404, detail="Vendors API Error")
+                    vendorsJson = vendorresponse.json()
+                    services['serviceProviderName']=vendorsJson['name']
                 elif key == 'id':
                     bookingList = []
                     bookingsDict = {}
@@ -38,7 +46,8 @@ async def get_service_rpt(serviceName:str|None=None):
                                         for bk,bv in book.items():
                                             if bk not in ['serviceId','bookingId','employeeId']:
                                                 bookingsDict[bk]=bv
-                        bookingList.append(bookingsDict)
+                        if len(bookingsDict) > 0:
+                            bookingList.append(bookingsDict)
                     services['recentVisits'] = bookingList
         if len(services) > 0:
             servicesList.append(services)
