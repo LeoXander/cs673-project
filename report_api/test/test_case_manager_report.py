@@ -6,12 +6,13 @@ client = TestClient(create_app())
 @pytest.fixture
 def error_responses():
     responses = []
-    responses.append("Patient Intake API Error")
+    responses.append("Case Managers API Error")
     return responses
+
 
 def test_status_codes(error_responses):
     """Test valid response codes that is acceptable for the API to deploy"""
-    response = client.get("/demographicchart")
+    response = client.get("/casemanagerutilizationreport")
     if response.status_code == 200:
         assert response.status_code == 200
     else:

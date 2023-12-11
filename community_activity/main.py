@@ -1,7 +1,12 @@
 import os
+import sys
 from fastapi import FastAPI
 from dotenv import load_dotenv
 load_dotenv()
+
+CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+print(CURR_DIR)
+sys.path.append(CURR_DIR)
 
 db_config_dir = os.environ.get('DB_CONFIG_DIR')
 db_username = os.environ.get('DB_USER')
