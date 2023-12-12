@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, Body
 from helpers.dbconnection import *
 router = APIRouter()
@@ -100,16 +101,21 @@ async def get_community_activity():
 async def add(communityEventName:str=Body(),issueAreaID:int=Body(),hours:int=Body()
                                 ,objectives:str=Body(),outcomes:str=Body(),activityType:list[int]=Body(),primaryEntities:list[int]=Body()):
     successJson={}
+    created_dt_tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    updt_dt_tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    datetimeFormat = 'YYYY-MM-DD hh24:mi:ss'
     try:
-        insertQuery = f"""insert into community_activities(community_activity_name, hours, objectives, outcomes, issue_area_id)
-                        values('{communityEventName}',{hours},'{objectives}','{outcomes}',{int(issueAreaID)})"""
+        insertQuery = f"""insert into community_activities(community_activity_name, hours, objectives, outcomes, issue_area_id, created_dt_tm, updt_dt_tm)
+                        values('{communityEventName}',{hours},'{objectives}','{outcomes}',{int(issueAreaID)},TO_DATE('{created_dt_tm}', '{datetimeFormat}')
+                        ,TO_DATE('{updt_dt_tm}', '{datetimeFormat}'))"""
         cursor.execute(insertQuery)
         connection.commit()
         searchQuery = f"""select community_activity_id from community_activities where community_activity_name = '{communityEventName}'
                             and hours = {hours}
                             and objectives='{objectives}'
                             and outcomes = '{outcomes}'
-                            and issue_area_id = {int(issueAreaID)}"""
+                            and issue_area_id = {int(issueAreaID)}
+                            and created_dt_tm = TO_DATE('{created_dt_tm}','{datetimeFormat}')"""
         cursor.execute(searchQuery)
         searchResults=cursor.fetchall()
         caID = int(searchResults[0][0])
@@ -141,6 +147,8 @@ async def update(communityEventID:int,communityEventName:str=Body(),issueAreaID:
                                     ,objectives:str=Body(),outcomes:str=Body(),activityType:list[int]=Body(),primaryEntities:list[int]=Body()):
     successJson={}
     successFlag=False
+    updt_dt_tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    datetimeFormat = 'YYYY-MM-DD hh24:mi:ss'
     try:
         caQuery = f"""select ca.community_activity_id from community_activities ca where ca.community_activity_id = {communityEventID}"""
         cursor.execute(caQuery)
@@ -152,6 +160,7 @@ async def update(communityEventID:int,communityEventName:str=Body(),issueAreaID:
                             , hours = {hours}
                             , objectives = '{objectives}'
                             , outcomes = '{outcomes}'
+                            , updt_dt_tm = TO_DATE('{updt_dt_tm}','{datetimeFormat}')
                             where community_activity_id = {communityEventID}"""
         cursor.execute(caUpdateQuery)
         connection.commit()
@@ -317,12 +326,6 @@ async def update(communityEventID:int,communityEventName:str=Body(),issueAreaID:
 async def delete(communityEventID:int):
     successJson={}
     try:
-        query = f"""delete from community_activities where community_activity_id = {communityEventID}"""
-        cursor.execute(query)
-        connection.commit()
-        query = f"""select community_activity_id from community_activities where community_activity_id = {communityEventID}"""
-        cursor.execute(query)
-        deletedID=cursor.fetchall()
         aaQuery = f"""select community_activity_id from activity_areas where community_activity_id = {communityEventID}"""
         cursor.execute(aaQuery)
         aaVals=cursor.fetchall()
@@ -346,7 +349,13 @@ async def delete(communityEventID:int):
             delVals=cursor.fetchall()
             if len(delVals) != 0:
                 raise HTTPException(status_code=404, detail=f"The community activity record cannot be deleted")
-
+        
+        query = f"""delete from community_activities where community_activity_id = {communityEventID}"""
+        cursor.execute(query)
+        connection.commit()
+        query = f"""select community_activity_id from community_activities where community_activity_id = {communityEventID}"""
+        cursor.execute(query)
+        deletedID=cursor.fetchall()
         if len(deletedID) != 0:
             raise HTTPException(status_code=404, detail=f"The community activity record cannot be deleted")
         else:
