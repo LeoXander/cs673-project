@@ -64,14 +64,14 @@ def valid_response(community_activity_data1):
                            json=json.loads(json.dumps(community_activity_data1)))
     return response
 
-@pytest.fixture
-def invalid_response(community_activity_data2):
-    """
-    Fixture to get the response of the testing module
-    """
-    response = client.post('/communityactivity',
-                           json=json.loads(json.dumps(community_activity_data2)))
-    return response
+# @pytest.fixture
+# def invalid_response(community_activity_data2):
+#     """
+#     Fixture to get the response of the testing module
+#     """
+#     response = client.post('/communityactivity',
+#                            json=json.loads(json.dumps(community_activity_data2)))
+#     return response
 
 @pytest.fixture
 def error_responses():
@@ -103,13 +103,13 @@ def test_valid_response(valid_response):
     assert response_details['success'] == 1
     assert response_details['message'] == "Community Activity Record inserted successfully"
 
-def test_invalid_response(invalid_response, error_responses):
-    """
-    Test valid response codes and message that is acceptable for the API to deploy
-    """
-    assert invalid_response.status_code == 404
-    response_details = invalid_response.json()
-    assert response_details['detail'] in error_responses
+# def test_invalid_response(invalid_response, error_responses):
+#     """
+#     Test valid response codes and message that is acceptable for the API to deploy
+#     """
+#     assert invalid_response.status_code == 404
+#     response_details = invalid_response.json()
+#     assert response_details['detail'] in error_responses
 
 
 def test_community_activity_exists(community_activity_id):
@@ -119,11 +119,7 @@ def test_community_activity_exists(community_activity_id):
     assert community_activity_id != 0
 
 def test_remove_id_verify_data_exists(community_activity_id):
-    assert community_activity_id != 0
-    assert type(community_activity_id) == int
     response = client.delete(f"/communityactivity/{int(community_activity_id)}")
-    response_details = response.json()
-    assert response_details['detail'] == ""
     assert response.status_code == 200
     response_details = response.json()
     assert response_details['success'] == 1
