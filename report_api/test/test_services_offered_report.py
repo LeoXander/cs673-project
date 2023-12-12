@@ -65,4 +65,25 @@ def test_status_codes_with_arguments(response_of_one_service, error_responses):
         assert response_details['detail'] in error_responses
         assert response.status_code == 404
 
-# def test_required_fields()
+def test_required_fields_without_argumnets(response, check_top_rows, required_fields):
+    """
+    Test required fields exists in the responses of a get request without any arguments
+    """
+    response_details = response.json()
+    if len(response_details['services']) < check_top_rows:
+        check_top_rows = len(response_details['services'])
+    assert all([field in required_fields['services'] 
+                for iter_i in range(check_top_rows) 
+                for field in response_details['services'][iter_i]])
+    
+
+def test_required_fields_with_arguments(response_of_one_service, check_top_rows, required_fields):
+    """
+    Test required fields exists in the responses of a request with arguments
+    """
+    response_details = response_of_one_service.json()
+    if len(response_details['services']) < check_top_rows:
+        check_top_rows = len(response_details['services'])
+    assert all([field in required_fields['services'] 
+                for iter_i in range(check_top_rows) 
+                for field in response_details['services'][iter_i]])
