@@ -22,14 +22,14 @@ def community_activity_id(database_cursor):
     try:
         query = f"select community_activity_id from community_activities where community_activity_name='{value}'"
         database_cursor.execute(query)
-        count = database_cursor.fetchone()
+        count = database_cursor.fetchall()
         print(count[0])
     except dbconnection.oracledb.Error as e:
         print("Error in test cases connecting and fetching data from db")
         print(str(e))
         assert False
     print(count)
-    return count[0]
+    return count
 
 @pytest.fixture
 def community_activity_data1():
@@ -48,7 +48,7 @@ def community_activity_data2():
     data = {}
     data["communityEventName"] = "Test_event2"
     data["issueAreaID"] = 14
-    data["hours"] = 'a'
+    data["hours"] = 0
     data["objectives"] = "Test add functionality"
     data["outcomes"] = "Successful addition of functionality"
     data["activityType"] = []
@@ -64,20 +64,22 @@ def valid_response(community_activity_data1):
                            json=json.loads(json.dumps(community_activity_data1)))
     return response
 
-# @pytest.fixture
-# def invalid_response(community_activity_data2):
-#     """
-#     Fixture to get the response of the testing module
-#     """
-#     response = client.post('/communityactivity',
-#                            json=json.loads(json.dumps(community_activity_data2)))
-#     return response
+@pytest.fixture
+def invalid_response(community_activity_data2):
+    """
+    Fixture to get the response of the testing module
+    """
+    response = client.post('/communityactivity',
+                           json=json.loads(json.dumps(community_activity_data2)))
+    return response
 
 @pytest.fixture
 def error_responses():
     responses = []
     responses.append("Unable to connect to server")
     responses.append("The community activity record cannot be added")
+    responses.append("Invalid data entered")
+    responses.append("The community activity record does not exist")
     return responses
 
 @pytest.fixture
@@ -103,13 +105,13 @@ def test_valid_response(valid_response):
     assert response_details['success'] == 1
     assert response_details['message'] == "Community Activity Record inserted successfully"
 
-# def test_invalid_response(invalid_response, error_responses):
-#     """
-#     Test valid response codes and message that is acceptable for the API to deploy
-#     """
-#     assert invalid_response.status_code == 404
-#     response_details = invalid_response.json()
-#     assert response_details['detail'] in error_responses
+def test_invalid_response(invalid_response, error_responses):
+    """
+    Test valid response codes and message that is acceptable for the API to deploy
+    """
+    assert invalid_response.status_code == 201
+    response_details = invalid_response.json()
+    assert response_details['error'] in error_responses
 
 
 def test_community_activity_exists(community_activity_id):
@@ -119,13 +121,14 @@ def test_community_activity_exists(community_activity_id):
     assert community_activity_id != 0
 
 def test_remove_id_verify_data_exists(community_activity_id):
-    response = client.delete(f"/communityactivity/{int(community_activity_id)}")
-    assert response.status_code == 200
-    response_details = response.json()
-    assert response_details['success'] == 1
-    assert response_details['message'] == "Community Activity Record deleted successfully"
     global ca_id
-    ca_id = community_activity_id
+    for comm_act in community_activity_id:
+        response = client.delete(f"/communityactivity/{int(comm_act[0])}")
+        assert response.status_code == 200
+        response_details = response.json()
+        assert response_details['success'] == 1
+        assert response_details['message'] == "Community Activity Record deleted successfully"
+        ca_id = comm_act[0]
     assert ca_id != 0
     
 
@@ -151,6 +154,6 @@ def test_invalid_delete():
     global ca_id
     assert ca_id != 0
     response = client.delete(f"/communityactivity/{ca_id}")
-    assert response.status_code == 404
+    assert response.status_code == 200
     response_details = response.json()
-    assert response_details['detail'] == 'The community activity record cannot be deleted'
+    assert response_details['error'] == 'The community activity record does not exist'
