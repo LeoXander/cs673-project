@@ -12,8 +12,7 @@ def calculateAge(birthDate):
     return patientAge
 
 @router.get('/demographicchart')
-async def get_demographicchart():
-    
+async def get_demographicchart(startDt:str|None=None, endDt: str|None=None):
     # Request Patient Intake API for patient demographics information
     response = requests.get('https://patient-intake-api-8ce23f3e5c62.herokuapp.com/patients')
     if response.status_code != 200:
