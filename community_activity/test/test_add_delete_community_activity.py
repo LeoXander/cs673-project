@@ -6,6 +6,7 @@ from ..main import create_app
 client = TestClient(create_app())
 global ca_id
 ca_id = 0
+
 @pytest.fixture(scope="module")
 def database_cursor():
     connection = dbconnection.connectToDB()
@@ -137,10 +138,13 @@ def test_deleted_event(database_cursor):
     try:
         query1 = f"select * from community_activities where community_activity_id = {ca_id}"
         query2 = f"select * from activity_areas where community_activity_id = {ca_id}"
+        query3 = f"select * from activity_entities where community_activity_id = {ca_id}"
         result1 = database_cursor.execute(query1)
         result2 = database_cursor.execute(query2)
+        result3 = database_cursor.execute(query3)
         data1 = result1.fetchone()
         data2 = result2.fetchone()
+        data3 = result3.fetchone()
     except dbconnection.oracledb.Error as e:
         print("Error in test cases connecting and fetching data from db")
         print(str(e))
@@ -149,6 +153,7 @@ def test_deleted_event(database_cursor):
     print(data2)
     assert data1 is None
     assert data2 is None
+    assert data3 is None
 
 def test_invalid_delete():
     global ca_id
