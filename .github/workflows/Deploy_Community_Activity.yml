@@ -29,6 +29,8 @@ jobs:
       # Check-out your repository.
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Add database related files
+        run: echo $EWALLET | base64 -d > ewallet.pem && echo $TNS_NAMES | base64 -d > tnsnames.ora
       - name: Run tests
         run: pip install -r requirements.txt && pytest
 
