@@ -34,7 +34,7 @@ async def get_primary_entities():
             primaryEntitiesList.append({'primaryEntityID':r[0],'primaryEntityName':r[1]})
         print(primaryEntitiesList)
         primaryEntitiesJson['primaryEntities']=primaryEntitiesList
-        primaryEntitiesJson=json.loads(json.dumps(primaryEntitiesList))
+        primaryEntitiesJson=json.loads(json.dumps(primaryEntitiesJson))
     except oracledb.Error as e:
         raise HTTPException(status_code=404, detail=e)
     return primaryEntitiesJson
