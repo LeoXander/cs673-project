@@ -51,7 +51,7 @@ def test_required_fields(response):
     """
     response_details = response.json()
     for item in response_details['activityTypes']:
-        assert 'issueAreaID' in item and item['issueAreaID'] is not None
-        assert 'issueArea' in item and item['issueArea'] is not None
+        assert 'activityTypeID' in item and item['activityTypeID'] is not None
+        assert 'activityTypeName' in item and item['activityTypeName'] is not None
 
 # Add 404 status code check. Check for proper error message

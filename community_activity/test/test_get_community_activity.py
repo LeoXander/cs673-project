@@ -58,7 +58,7 @@ def test_required_fields(response):
         assert 'hours' in item and item['hours'] is not None
         assert 'objectives' in item and item['objectives'] is not None
         assert 'outcomes' in item and item['outcomes'] is not None
-        assert 'issueArea' in item and item['issueArea'] is not None
+        assert 'issueAreaID' in item and item['issueAreaID'] is not None
         assert 'activityTypes' in item and item['activityTypes'] is not None
         count += 1
         if count == check_top_rows:
