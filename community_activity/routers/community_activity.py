@@ -18,7 +18,7 @@ async def get_activity_types():
         activityTypesJson['activityTypes']=activityTypesList
         activityTypesJson=json.loads(json.dumps(activityTypesJson))
     except oracledb.Error:
-        raise HTTPException(status_code=404, detail="Unable to connect to server.")
+        raise HTTPException(status_code=404, detail="Unable to connect to server")
     return activityTypesJson
 
 @router.get('/primaryentities')
@@ -34,7 +34,7 @@ async def get_primary_entities():
         primaryEntitiesJson['primaryEntities']=primaryEntitiesList
         primaryEntitiesJson=json.loads(json.dumps(primaryEntitiesJson))
     except oracledb.Error:
-        raise HTTPException(status_code=404, detail="Unable to connect to server.")
+        raise HTTPException(status_code=404, detail="Unable to connect to server")
     return primaryEntitiesJson
 
 @router.get('/issueareas')
@@ -50,7 +50,7 @@ async def get_issue_areas():
         issueAreasJson['issueAreas']=issueAreasList
         issueAreasJson=json.loads(json.dumps(issueAreasJson))
     except oracledb.Error:
-        raise HTTPException(status_code=404, detail="Unable to connect to server.")
+        raise HTTPException(status_code=404, detail="Unable to connect to server")
     return issueAreasJson
 
 @router.get('/communityactivity')
@@ -93,7 +93,7 @@ async def get_community_activity():
         communityActivityJson['communityActivities'] = communityActivityList
         communityActivityJson=json.loads(json.dumps(communityActivityJson))
     except oracledb.Error as e:
-        raise HTTPException(status_code=404, detail="Unable to connect to server.")
+        raise HTTPException(status_code=404, detail="Unable to connect to server")
     return communityActivityJson
 
 @router.post('/communityactivity', status_code=201)
@@ -131,9 +131,9 @@ async def add(communityEventName:str=Body(),issueAreaID:int=Body(),hours:int=Bod
             successJson["success"] = 1
             successJson["message"] = f"Community Activity Record inserted successfully"
         else:
-            raise HTTPException(status_code=404, detail=f"Community Activity Record not added.")
+            raise HTTPException(status_code=404, detail=f"The community activity record cannot be added")
     except oracledb.Error:
-        raise HTTPException(status_code=404, detail="Unable to connect to server.")
+        raise HTTPException(status_code=404, detail="Unable to connect to server")
     return json.loads(json.dumps(successJson))
 
 @router.put('/communityactivity/{communityEventID}')
@@ -333,7 +333,7 @@ async def delete(communityEventID:int):
             cursor.execute(aaQuery)
             delVals=cursor.fetchall()
             if len(delVals) != 0:
-                raise HTTPException(status_code=404, detail=f"Community Activity Record cannot be deleted.")
+                raise HTTPException(status_code=404, detail=f"The community activity record cannot be deleted")
         
         peQuery = f"""select community_activity_id from activity_entities where community_activity_id = {communityEventID}"""
         cursor.execute(peQuery)
@@ -345,12 +345,12 @@ async def delete(communityEventID:int):
             cursor.execute(peQuery)
             delVals=cursor.fetchall()
             if len(delVals) != 0:
-                raise HTTPException(status_code=404, detail=f"Community Activity Record cannot be deleted.")
+                raise HTTPException(status_code=404, detail=f"The community activity record cannot be deleted")
 
         if len(deletedID) != 0:
-            raise HTTPException(status_code=404, detail=f"Community Activity Record with cannot be delted.")
+            raise HTTPException(status_code=404, detail=f"The community activity record cannot be deleted")
         else:
             successJson={"message":"Community Activity Record deleted successfully", 'success':1}
     except oracledb.Error:
-        raise HTTPException(status_code=404, detail="Unable to connect to server.")
+        raise HTTPException(status_code=404, detail="Unable to connect to server")
     return json.loads(json.dumps(successJson))

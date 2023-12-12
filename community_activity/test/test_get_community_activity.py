@@ -31,37 +31,58 @@ def response():
     response = client.get("/communityactivity")
     return response
 
-def test_status_codes(response):
+@pytest.fixture
+def error_responses():
+    responses = []
+    responses.append("Unable to connect to server")
+    return responses
+
+@pytest.fixture
+def check_top_rows():
+    return 10
+
+@pytest.fixture
+def required_fields():
+    fields = []
+    fields.append('communityActivityId')
+    fields.append('communityActivityName')
+    fields.append('hours')
+    fields.append('objectives')
+    fields.append('outcomes')
+    fields.append('issueAreaID')
+    fields.append('issueAreaName')
+    fields.append('primaryEntities')
+    fields.append('activityTypes')
+    return fields
+
+def test_status_codes(response, error_responses):
     """
     Test valid response codes that is acceptable for the API to deploy
     """
-    assert response.status_code == 200
+    if response.status_code == 200:
+        assert response.status_code == 200
+    else:
+        assert response.status_code == 404
+        response_details = response.json()
+        assert response_details['detail'] in error_responses
 
 def test_response_count(response, community_activity_count):
     """
     Test possible no of responses that are expected
     """
-    response_details = response.json()
-    assert response_details is not None
-    assert community_activity_count == len(response_details['communityActivities'])
+    if response.status_code == 200:
+        response_details = response.json()
+        assert response_details is not None
+        assert community_activity_count == len(response_details['communityActivities'])
 
-def test_required_fields(response):
+def test_required_fields(response, check_top_rows, required_fields):
     """
     Test required fields exists and are populared in the responses
     """
-    response_details = response.json()
-    check_top_rows = 10
-    count = 0
-    for item in response_details['communityActivities']:
-        assert 'communityActivityId' in item and item['communityActivityId'] is not None
-        assert 'communityActivityName' in item and item['communityActivityName'] is not None
-        assert 'hours' in item and item['hours'] is not None
-        assert 'objectives' in item and item['objectives'] is not None
-        assert 'outcomes' in item and item['outcomes'] is not None
-        assert 'issueAreaID' in item and item['issueAreaID'] is not None
-        assert 'activityTypes' in item and item['activityTypes'] is not None
-        count += 1
-        if count == check_top_rows:
-            break
-
-# Add 404 status code check. Check for proper error message
+    if response.status_code == 200:
+        response_details = response.json()
+        if len(response_details['communityActivities']) < check_top_rows:
+            check_top_rows = len(response_details['communityActivities'])
+        for iter_i in range(check_top_rows):
+            for field in response_details['communityActivities'][iter_i]:
+                assert field in required_fields

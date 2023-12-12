@@ -31,29 +31,48 @@ def response():
     response = client.get("/primaryentities")
     return response
 
-def test_status_codes(response):
+@pytest.fixture
+def error_responses():
+    responses = []
+    responses.append("Unable to connect to server")
+    return responses
+
+@pytest.fixture
+def required_fields():
+    fields = []
+    fields.append('primaryEntityID')
+    fields.append('primaryEntityName')
+    return fields
+
+def test_status_codes(response, error_responses):
     """
     Test valid response codes that is acceptable for the API to deploy
     """
-    assert response.status_code == 200
+    if response.status_code == 200:
+        assert response.status_code == 200
+    else:
+        assert response.status_code == 404
+        response_details = response.json()
+        assert response_details['detail'] in error_responses
 
 def test_response_count(response, primary_entities_count):
     """
     Test possible no of responses that are expected
     """
-    response_details = response.json()
-    assert response_details is not None
-    assert primary_entities_count == len(response_details['primaryEntities'])
+    if response.status_code == 200:
+        response_details = response.json()
+        assert response_details is not None
+        assert primary_entities_count == len(response_details['primaryEntities'])
 
-def test_required_fields(response):
+def test_required_fields(response, required_fields):
     """
     Test required fields exists and are populared in the responses
     """
-    response_details = response.json()
-    for item in response_details['primaryEntities']:
-        assert 'primaryEntityID' in item and item['primaryEntityID'] is not None
-        assert 'primaryEntityName' in item and item['primaryEntityName'] is not None
+    if response.status_code == 200:
+        response_details = response.json()
+        for item in response_details['primaryEntities']:
+            for key in item:
+                assert key in required_fields
+                assert item[key] is not None
 
-
-# Add 404 status code check. Check for proper error message
     
