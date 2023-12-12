@@ -58,7 +58,7 @@ def test_status_codes_with_arguments(response_of_one_service, error_responses):
     """
     Test valid response codes that is acceptable for the API to deploy
     """
-    if response_of_one_service == 200:
+    if response_of_one_service.status_code == 200:
         assert response_of_one_service.status_code == 200
     else:
         response_details = response_of_one_service.json()
