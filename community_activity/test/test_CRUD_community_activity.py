@@ -32,7 +32,7 @@ def community_activity_id(database_cursor):
     print(count)
     return count
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def community_activity_data1():
     data = {}
     data["communityEventName"] = "Test_event1"
@@ -119,9 +119,62 @@ def test_community_activity_exists(community_activity_id):
     """
     Test whether the added data exists in the database
     """
-    assert community_activity_id != 0
+    global ca_id
+    for comm_act in community_activity_id:
+        assert comm_act[0] != 0
+        ca_id = comm_act[0]
+    
+
+def test_update_event(community_activity_data1):
+    global ca_id
+    community_activity_data1["activityType"] = [5]
+    community_activity_data1["hours"] = 2
+    community_activity_data1["primaryEntities"] = [1, 2]
+    response = client.put(f"/communityactivity/{ca_id}",
+                          json=json.loads(json.dumps(community_activity_data1)))
+    assert response.status_code == 200
+    response_details = response.json()
+    assert response_details["success"] == 1
+    assert response_details["message"] == "Community Activity Record updated successfully"
+
+def test_updated_data(community_activity_data1):
+    global ca_id
+    getall_response = client.get("/communityactivity")
+    assert getall_response.status_code == 200
+    response_details = getall_response.json()
+    for item in response_details["communityActivities"]:
+        if item["communityActivityId"] == ca_id:
+            for key in item:
+                if key == "communityActivityId":
+                    continue
+                elif key == "communityActivityName":
+                    assert item[key] == community_activity_data1["communityEventName"]
+                    continue
+                elif key == "issueAreaName":
+                    continue
+                elif key == "activityTypes":
+                    try:
+                        for act_type in item[key]:
+                            assert act_type["activityTypeID"] in community_activity_data1["activityType"]
+                    except Exception as e:
+                        print(str(e))
+                        assert False
+                    continue
+                elif key == "primaryEntities":
+                    try:
+                        for prime_entity in item[key]:
+                            assert prime_entity["primaryEntityId"] in community_activity_data1[key]
+                    except Exception as e:
+                        print(str(e))
+                        assert False
+                    continue
+                assert item[key] == community_activity_data1[key]
+
 
 def test_remove_id_verify_data_exists(community_activity_id):
+    """
+    Test deletion of the created activity and validate the responses
+    """
     global ca_id
     for comm_act in community_activity_id:
         response = client.delete(f"/communityactivity/{int(comm_act[0])}")
@@ -134,6 +187,9 @@ def test_remove_id_verify_data_exists(community_activity_id):
     
 
 def test_deleted_event(database_cursor):
+    """
+    Test whether the deleted data is successful by checking the same in the database
+    """
     global ca_id
     try:
         query1 = f"select * from community_activities where community_activity_id = {ca_id}"
@@ -156,6 +212,9 @@ def test_deleted_event(database_cursor):
     assert data3 is None
 
 def test_invalid_delete():
+    """
+
+    """
     global ca_id
     assert ca_id != 0
     response = client.delete(f"/communityactivity/{ca_id}")
