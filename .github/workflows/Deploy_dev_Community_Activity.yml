@@ -32,7 +32,7 @@ jobs:
       - name: Add database related files
         run: echo $EWALLET | base64 -d > ewallet.pem && echo $TNS_NAMES | base64 -d > tnsnames.ora
       - name: Run tests
-        run: pip install -r requirements.txt && pytest
+        run: pip install -r requirements.txt && pytest -vv
 
 ### ⬇ IMPORTANT PART ⬇ ###
 
