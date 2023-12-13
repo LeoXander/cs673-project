@@ -13,8 +13,12 @@ async def get_service_rpt(serviceName:str|None=None):
     bookingsresponse = requests.get('https://team3-598fa58116f6.herokuapp.com/api/booking/details')
     if bookingsresponse.status_code != 200:
         raise HTTPException(status_code=404, detail="Bookings API Error")
+    patientsresponse = requests.get('https://patient-intake-api-8ce23f3e5c62.herokuapp.com/patients')
+    if patientsresponse.status_code != 200:
+        raise HTTPException(status_code=404, detail="Patient Intake API Error")
     servicesOfferedJson = servOfferedresponse.json()
     bookingsJson = bookingsresponse.json()
+    patientsJson = patientsresponse.json()
     servicesList=[]
     serviceRptJson = {'services':list}
     if serviceName is not None:
@@ -38,6 +42,8 @@ async def get_service_rpt(serviceName:str|None=None):
                 elif key == 'id':
                     bookingList = []
                     bookingsDict = {}
+                    averageRating=0
+                    noBookings = 0
                     for booking in bookingsJson:
                         for k, v in booking.items():
                             if value == booking['serviceId']:
@@ -49,11 +55,47 @@ async def get_service_rpt(serviceName:str|None=None):
                                                     bookingsDict[bk]="Completed"
                                                 else:
                                                     bookingsDict[bk]=bv
-                                            if bk not in ['serviceId','bookingId','employeeId','status']:
+                                            if bk == 'remarks':
+                                                if bv is None:
+                                                    bookingsDict[bk]='No remarks'
+                                                else:
+                                                    bookingsDict[bk]=bv
+                                            if bk == 'startTime':
+                                                if bv is None:
+                                                    bookingsDict[bk]='2023-12-01T09:00:00'
+                                                else:
+                                                    bookingsDict[bk]=bv
+                                            if bk == 'endTime':
+                                                if bv is None:
+                                                    bookingsDict[bk]='2023-12-31T09:00:00'
+                                                else:
+                                                    bookingsDict[bk]=bv
+                                            if bk == 'bookingId':
+                                                url = 'https://team3-598fa58116f6.herokuapp.com/api/progress-notes/booking/'+str(bv)
+                                                ratingresponse = requests.get(url)
+                                                if ratingresponse.status_code == 200:
+                                                    ratingsJson=ratingresponse.json()
+                                                    for rating in ratingsJson:
+                                                        for rKey,rVal in rating.items():
+                                                            if rKey not in ['bookingId','id','goalId']:
+                                                                if rVal is not None:
+                                                                    averageRating += int(rVal)/4
+                                                                    noBookings+=1
+                                                                else:
+                                                                    averageRating += 5/4
+                                                                    noBookings+=1
+                                                else:
+                                                    averageRating += 5
+                                                    noBookings+=1
+                                            if bk == 'patientId':
                                                 bookingsDict[bk]=bv
                         if len(bookingsDict) > 0:
                             bookingList.append(bookingsDict)
                     services['recentVisits'] = bookingList
+                    if noBookings!=0:
+                        services['rating']=averageRating/noBookings
+                    else:
+                        services['rating']=averageRating
         if len(services) > 0:
             servicesList.append(services)
     serviceRptJson['services']=servicesList

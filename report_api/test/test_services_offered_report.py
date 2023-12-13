@@ -31,6 +31,7 @@ def required_fields():
     fields['services'].append('location')
     fields['services'].append('serviceProviderName')
     fields['services'].append('description')
+    fields['services'].append('rating')
     fields['recentVisits'] = []
     fields['recentVisits'].append('startTime')
     fields['recentVisits'].append('endTime')
