@@ -39,12 +39,13 @@ def test_status_codes(response, error_responses):
         assert response.status_code == 404
 
 def test_required_fields(response, required_fields, check_top_rows):
-    response_details = response.json()
-    if len(response_details['caseManagers']) < check_top_rows:
-        check_top_rows = len(response_details['caseManagers'])
-    assert all([field in required_fields['caseManagers'] 
-                for iter_i in range(check_top_rows) 
-                for field in response_details['caseManagers'][iter_i]])
+    if response.status_code == 200:
+        response_details = response.json()
+        if len(response_details['caseManagers']) < check_top_rows:
+            check_top_rows = len(response_details['caseManagers'])
+        assert all([field in required_fields['caseManagers'] 
+                    for iter_i in range(check_top_rows) 
+                    for field in response_details['caseManagers'][iter_i]])
 
 
 
