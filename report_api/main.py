@@ -9,10 +9,11 @@ sys.path.append(CURR_DIR)
 
 def create_app():
     app = FastAPI()
-    from routers import demographic_chart, servicesOffered, casemanager
+    from routers import demographic_chart, servicesOffered, casemanager, api_documentation
     app.include_router(demographic_chart.router)
     app.include_router(servicesOffered.router)
     app.include_router(casemanager.router)
+    app.include_router(api_documentation.router)
     origins = ["*"]
 
     app.add_middleware(

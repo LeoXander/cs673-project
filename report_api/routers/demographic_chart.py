@@ -72,6 +72,8 @@ async def get_demographicchart(startDt:str|None=None, endDt: str|None=None):
             ageRange['90-99'] += 1
         else:
             ageRange['> 100'] += 1
+    
+    
 
     # Populate the demographicDict with ageRanges and sex.
     for k,v in sex.items():

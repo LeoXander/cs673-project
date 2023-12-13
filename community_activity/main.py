@@ -16,9 +16,11 @@ wallet_password = os.environ.get('WALLET_PASSWORD')
 
 def create_app():
     app = FastAPI()
-    from routers import community_activity
+    from routers import community_activity, community_activity_report, api_documentation
     from fastapi.middleware.cors import CORSMiddleware
     app.include_router(community_activity.router)
+    app.include_router(community_activity_report.router)
+    app.include_router(api_documentation.router)
     origins = ["*"]
 
     app.add_middleware(
