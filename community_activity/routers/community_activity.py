@@ -62,7 +62,7 @@ async def get_community_activity():
         query="""select ca.community_activity_id,ca.community_activity_name,ca.hours,ca.objectives,ca.outcomes,ca.issue_area_id,ia.issue_area_name
                 from community_activities ca
                 join issue_area ia on ia.issue_area_id = ca.issue_area_id
-                order by ca.community_activity_id"""
+                order by ca.created_dt_tm desc"""
         cursor.execute(query)
         results=cursor.fetchall()
         for r in results:
@@ -93,7 +93,7 @@ async def get_community_activity():
 
         communityActivityJson['communityActivities'] = communityActivityList
         communityActivityJson=json.loads(json.dumps(communityActivityJson))
-    except oracledb.Error as e:
+    except oracledb.Error:
         raise HTTPException(status_code=404, detail="Unable to connect to server")
     return communityActivityJson
 
@@ -101,9 +101,24 @@ async def get_community_activity():
 async def add(communityEventName:str=Body(),issueAreaID:int=Body(),hours:int=Body()
                                 ,objectives:str=Body(),outcomes:str=Body(),activityType:list[int]=Body(),primaryEntities:list[int]=Body()):
     successJson={}
-    if len(communityEventName.strip()) <= 0 or (issueAreaID <=0 and isinstance(issueAreaID, (int, float, complex)) == False) \
-        or (hours <=0 and isinstance(hours, (int, float, complex)) == False) or len(objectives.strip()) <= 0 or len(outcomes.strip()) <= 0 \
-        or len(activityType) <= 0 or len(primaryEntities) <= 0:
+    if len(communityEventName.strip()) <= 0:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if issueAreaID <=0:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if isinstance(issueAreaID, (int, float, complex)) == False:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if hours <=0:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if isinstance(hours, (int, float, complex)) == False:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if len(objectives.strip()) <= 0:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if len(outcomes.strip()) <= 0:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if len(activityType) <= 0:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    
+    if len(primaryEntities) <= 0:
         return json.loads(json.dumps({"error":"Invalid data entered"}))
     for at in activityType:
         if not isinstance(at, (int, float, complex)) or at == 0:
@@ -156,10 +171,21 @@ async def add(communityEventName:str=Body(),issueAreaID:int=Body(),hours:int=Bod
 async def update(communityEventID:int,communityEventName:str=Body(),issueAreaID:int=Body(),hours:int=Body()
                                     ,objectives:str=Body(),outcomes:str=Body(),activityType:list[int]=Body(),primaryEntities:list[int]=Body()):
     successJson={}
-    if (communityEventID <=0 and isinstance(communityEventID, (int, float, complex)) == False) or len(communityEventName.strip()) <= 0 \
-        or (issueAreaID <=0 and isinstance(issueAreaID, (int, float, complex)) == False) \
-        or (hours <=0 and isinstance(hours, (int, float, complex)) == False) or len(objectives.strip()) <= 0 or len(outcomes.strip()) <= 0 \
-        or len(activityType) <= 0 or len(primaryEntities) <= 0:
+    if len(communityEventName.strip()) <= 0:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if issueAreaID <=0:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if isinstance(issueAreaID, (int, float, complex)) == False:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if hours <=0:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if isinstance(hours, (int, float, complex)) == False:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if len(objectives.strip()) <= 0:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if len(outcomes.strip()) <= 0:
+        return json.loads(json.dumps({"error":"Invalid data entered"}))
+    if len(activityType) <= 0:
         return json.loads(json.dumps({"error":"Invalid data entered"}))
     for at in activityType:
         if not isinstance(at, (int, float, complex)) or at == 0:
