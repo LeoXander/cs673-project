@@ -44,7 +44,12 @@ async def get_service_rpt(serviceName:str|None=None):
                                 if k == 'bookings':
                                     for book in v:
                                         for bk,bv in book.items():
-                                            if bk not in ['serviceId','bookingId','employeeId']:
+                                            if bk == 'status':
+                                                if bv is None:
+                                                    bookingsDict[bk]="Completed"
+                                                else:
+                                                    bookingsDict[bk]=bv
+                                            if bk not in ['serviceId','bookingId','employeeId','status']:
                                                 bookingsDict[bk]=bv
                         if len(bookingsDict) > 0:
                             bookingList.append(bookingsDict)
